@@ -1,0 +1,6 @@
+{
+  "prefix_length": 24, "token_min": 256, "token_max": 20000,
+  "discovery_seed": 1701, "discovery_n": 48, "control_seed": 208,
+  "test_seeds": [41, 43, 47], "test_n": 64, "batch_size": 8,
+  "bootstrap_seed": 7301, "bootstrap_n": 2000
+}
