@@ -53,3 +53,11 @@ For CPU execution I use `--device cpu --precision float32`. The CPU tests check 
 I based the task on the repeated-cue induction behavior studied by Olsson and colleagues. I used OpenAI's public GPT-2 Small checkpoint, the Hugging Face implementation and PyTorch hooks. CircuitScope's code and documentation use the MIT license. The original checkpoint is available separately under its upstream license. [Induction heads paper](https://transformer-circuits.pub/2022/in-context-learning-and-induction-heads/index.html) · [GPT-2 upstream license](https://github.com/openai/gpt-2/blob/master/LICENSE) · [CircuitScope license](LICENSE)
 
 I used OpenAI Codex to design and implement the experiments, execute the local runs, check the outputs and draft the documentation. The numerical claims can be checked against the committed trial table.
+
+### Let's Connect
+
+I worked on CircuitScope because I wanted to understand more about what happens inside transformer models, especially how attention heads contribute to predictions.
+
+If you're interested in the experiments, activation patching, or the causal analysis, I'm happy to walk through the methodology, explain the results, and discuss the limitations.
+
+Feel free to [reach out](https://github.com/sslcat)!
