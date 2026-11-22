@@ -1,0 +1,46 @@
+{
+  "model": "openai-community/gpt2",
+  "revision": "607a30d783dfa663caf39e06633721c8d4cfcd7e",
+  "sha256": "248dfc3911869ec493c76e65bf2fcf7f615828b0254c12b473182f0f81d3a707",
+  "params": 124439808,
+  "config": {
+    "prefix_length": 24,
+    "token_min": 256,
+    "token_max": 20000,
+    "discovery_seed": 1701,
+    "discovery_n": 48,
+    "control_seed": 208,
+    "test_seeds": [
+      41,
+      43,
+      47
+    ],
+    "test_n": 64,
+    "batch_size": 8,
+    "bootstrap_seed": 7301,
+    "bootstrap_n": 2000
+  },
+  "device": "cuda",
+  "dtype": "float16",
+  "platform": "Windows",
+  "python": "3.12.15",
+  "torch": "2.8.0+cu128",
+  "cuda": "12.8",
+  "packages": {
+    "transformers": "4.56.2",
+    "numpy": "2.2.6",
+    "safetensors": "0.6.2",
+    "matplotlib": "3.10.6"
+  },
+  "qc_max_abs_logit_error": {
+    "self_patch": 0.0,
+    "residual_patch": 0.0
+  },
+  "threads": 6,
+  "gpu": "NVIDIA GeForce RTX 4070 SUPER",
+  "initial_free_mib": 11069.0,
+  "gpu_total_mib": 12281.5,
+  "peak_allocated_mib": 308.37060546875,
+  "peak_reserved_mib": 318.0,
+  "runtime_seconds": 23.64722049998818
+}

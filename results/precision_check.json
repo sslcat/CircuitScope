@@ -1,0 +1,21 @@
+{
+  "seed": 41,
+  "n": 8,
+  "metrics": {
+    "gap": {
+      "cpu_fp32_mean": 12.846437454223633,
+      "original_mean": 12.83984375,
+      "max_abs_difference": 0.15569686889648438
+    },
+    "ablate_candidate_pair": {
+      "cpu_fp32_mean": 1.9609192609786987,
+      "original_mean": 1.9765625,
+      "max_abs_difference": 0.087860107421875
+    },
+    "patch_candidate_pair": {
+      "cpu_fp32_mean": 5.610824108123779,
+      "original_mean": 5.60546875,
+      "max_abs_difference": 0.08723068237304688
+    }
+  }
+}
