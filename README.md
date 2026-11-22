@@ -1,8 +1,10 @@
 # CircuitScope
 
-I wanted to know whether a specific part of GPT-2 Small helps it predict the token that followed an earlier occurrence of a cue. I found a measurable route through head **L6H9**. Transplanting its final-query output from a clean prompt into a swapped prompt moved the target-versus-foil margin by **3.50 nats** on average. Adding **L5H5** increased that recovery to **5.71 nats**, or **41.6%** of the intact behavioral gap.
+I wanted to know whether a specific part of GPT-2 Small helps it predict the token that followed an earlier occurrence of a cue. I measured a partial causal contribution from **L6H9**, one of the induction heads previously identified in GPT-2 Small. Transplanting its final-query output from a clean prompt into a swapped prompt moved the target-versus-foil margin by **3.50 nats** on average. Adding **L5H5** increased that recovery to **5.71 nats**, or **41.6%** of the intact behavioral gap.
 
 ![Held-out head ablation and patching effects with paired 95% intervals](results/figures/causal-effects.png)
+
+Wang and colleagues previously found prefix matching and copying at both heads. I tested how much of a controlled cue swap these heads could transmit and how much of its effect survived ablation. [Wang et al., ICLR 2023, Appendix F](https://openreview.net/pdf?id=NpsVSN6o4ul)
 
 ## What I tested
 
@@ -17,6 +19,8 @@ I ranked all 144 heads by how much their attention followed that switch on 48 di
 | Clean minus swap target-versus-foil margin | 13.71 nats | 12.93 to 14.50 |
 | Gap lost when I zeroed L5H5 and L6H9 | 2.12 nats | 1.82 to 2.43 |
 | Swap margin gained when I patched both heads | 5.71 nats | 5.23 to 6.20 |
+
+The target beat the designated foil on 189 of 192 clean prompts. On 90 of those wins, another token took first place across the 50,257-token vocabulary.
 
 The highest attention score belonged to L5H5. L6H9 had the larger individual causal effect. Removing just the bound successor's weighted value from L6H9 reduced the gap by **1.23 nats**. Zeroing both heads still left an **11.59-nat** gap. I regard the source-to-head result as evidence for one route within a larger computation. [Full report and failure cases](docs/research_report.md)
 
@@ -34,10 +38,11 @@ python -m circuitscope.figures reproduction
 python -m circuitscope.precision_check reproduction
 ```
 
-For CPU execution I use `--device cpu --precision float32`. The 10 CPU tests use a tiny randomly initialized model and require no downloads. I included a CPU GitHub Actions workflow. [Installation, configuration and artifact guide](docs/reproduction.md)
+For CPU execution I use `--device cpu --precision float32`. The CPU tests check a tiny randomly initialized model and the saved study artifacts. They run offline. I included a CPU GitHub Actions workflow. [Installation, configuration and artifact guide](docs/reproduction.md)
 
 ## Research materials
 
+- I audited head indexing with a second implementation, resampled the saved prompt pairs and reproduced the GPU run from a clean environment. [Scientific and publication audit](docs/audit.md)
 - I recorded the hypothesis, falsification rules and analysis before measuring GPT-2. [Study protocol](docs/protocol.md) · [Supplementary source intervention](docs/source_intervention.md)
 - I mapped the attention and intervention equations to their implementations. [Mathematical notes](docs/math.md)
 - I included all prompt-level effects, head choices, summary intervals, runtime metadata and figures. [Measured results](results/)

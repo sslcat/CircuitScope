@@ -6,16 +6,17 @@ I ran this study with Python 3.12. I install the project in a fresh virtual envi
 python -m venv .venv
 ```
 
-On Windows PowerShell I activate it with `.\.venv\Scripts\Activate.ps1`. On Linux I use `source .venv/bin/activate`. I then install one PyTorch build. For the CUDA 12.8 build used on the RTX 4070 SUPER I run
+I check that `python --version` reports Python 3.12 before creating the environment. On Windows PowerShell I activate it with `.\.venv\Scripts\Activate.ps1`. On Linux I use `source .venv/bin/activate`. I then install one PyTorch build. For the CUDA 12.8 build used on the RTX 4070 SUPER I run
 
 ```sh
 python -m pip install torch==2.8.0 --index-url https://download.pytorch.org/whl/cu128
 ```
 
-For CPU-only reproduction I use the CPU wheel index in that command, `https://download.pytorch.org/whl/cpu`. After installing PyTorch my remaining steps are
+For CPU-only reproduction I use the CPU wheel index in that command, `https://download.pytorch.org/whl/cpu`. The following commands reproduce the recorded GPU run. For CPU execution I replace `--device cuda --precision float16` with `--device cpu --precision float32` in the runner command.
 
 ```sh
 python -m pip install -r requirements.txt
+python -m pip check
 python -m pytest -q
 python -m circuitscope.checkpoint
 python -m circuitscope.run --config config.json --device cuda --precision float16 --out reproduction
@@ -25,11 +26,11 @@ python -m circuitscope.precision_check reproduction
 
 The checkpoint helper downloads a 548,105,171-byte safetensors file and the small model configuration, then verifies both SHA-256 digests. The tests instantiate a random tiny GPT-2 locally. Experiment inference and plotting run offline after setup. I keep the weights and environment out of version control.
 
-I use `--device cpu --precision float32` to run the study on CPU. Automatic selection uses CUDA when PyTorch reports at least 500 MiB free and selects FP16 under 1,300 MiB free on CUDA. To repeat the recorded precision independent of free memory, pass the device and precision from `results/run.json` explicitly. Minor numerical differences can occur across precision, kernels and hardware. I use a new output directory for each run.
+Automatic selection uses CUDA when PyTorch reports at least 500 MiB free and selects FP16 under 1,300 MiB free on CUDA. To repeat the recorded precision independent of free memory, pass the device and precision from `results/run.json` explicitly. Minor numerical differences can occur across precision, kernels and hardware. I use a new output directory for each run.
 
 I edit a copy of `config.json` to change the prefix length, token range, discovery and test sample sizes, seeds, batch size or bootstrap draws. Batch size controls peak working memory. Each seed produces the same prompts across batch sizes. A tiny config with a single test seed and fewer prompts is suitable for a pipeline check. I use the checked-in config for scientific comparisons.
 
-I recorded the exact Windows packages in [the environment snapshot](../results/environment.txt). The eight-prompt precision check is a separate CPU run and writes its output alongside the primary results.
+The requirements pin the six direct dependencies. Pip resolves their transitive dependencies at install time. I recorded the exact Windows packages in [the environment snapshot](../results/environment.txt). The GPU instructions require an NVIDIA GPU and a driver compatible with the CUDA 12.8 PyTorch wheel. The recorded allocator peak excludes CUDA context and other processes. I verified the GPU run on the RTX 4070 SUPER with driver 610.88. The eight-prompt precision check is a separate CPU run and writes its output alongside the primary results.
 
 ## Reading the artifacts
 

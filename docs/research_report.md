@@ -12,9 +12,11 @@ When a cue occurs twice, does the model use an identifiable head to favor the to
 
 Olsson and colleagues describe an induction head as completing a pattern of the form `A B … A → B`. I use one retrieval query per prompt and two possible successors. This lets me compare exactly the same answer tokens at fixed positions. Inspecting attention tells me which heads look at the right source. Testing their outputs and their individual source terms lets me measure which of those signals affects the model's prediction. [Olsson et al., 2022](https://transformer-circuits.pub/2022/in-context-learning-and-induction-heads/index.html)
 
+Wang and colleagues identified **both L5H5 and L6H9** in GPT-2 Small. They tested prefix matching on repeated random sequences and projected head outputs onto the next token’s unembedding direction to assess copying. I therefore interpret my ranking as a replication of known head identities. My measurements quantify what happens to a fixed target-versus-foil margin when I swap earlier cues, edit the query heads, or remove a particular source term. Their effect sizes and mine answer different questions. [Wang et al., ICLR 2023, Appendix F, Figures 12–13](https://openreview.net/pdf?id=NpsVSN6o4ul)
+
 ## Hypotheses
 
-I expected a positive clean-minus-swap margin gap. My causal prediction was that zeroing the two selected heads would shrink the gap and that patching them from clean to swap would move the swap margin toward the clean answer. I required each joint effect to exceed its same-layer and global control counterpart with a positive lower 95% endpoint. I specified that an interval spanning zero would leave that prediction unresolved. The smallest individual site had to pass the corresponding single-head comparisons. I also specified a supplementary comparison of bound and unbound source terms before inspecting the rankings. [Prospective protocol](protocol.md) · [Source-term design](source_intervention.md)
+I expected a positive clean-minus-swap margin gap. My causal prediction was that zeroing the two selected heads would shrink the gap and that patching them from clean to swap would move the swap margin toward the clean answer. I required each joint effect to exceed its same-layer and global control counterpart with a positive lower 95% endpoint. I specified that an interval spanning zero would leave that prediction unresolved. I treated single-head contrasts as descriptive and compared each candidate with its two assigned controls. I also specified a supplementary comparison of bound and unbound source terms before inspecting the rankings. [Prospective protocol](protocol.md) · [Source-term design](source_intervention.md)
 
 ## Experimental setup
 
@@ -38,7 +40,11 @@ I zeroed selected value-weighted head outputs at the final query just before the
 | Swapped earlier cues | −10.90 | −6.83 [−7.40, −6.27] | 2.6% | 0.0% |
 | Novel query | −10.78 | 0.20 [−0.22, 0.65] | 51.8% | 0.0% |
 
-I measured a mean paired gap of **13.71 [12.93, 14.50] nats** and a clean target loss saving of **6.74 [6.31, 7.17] nats**. The target won against the foil on 189/192 clean prompts but won against the entire vocabulary on only 99/192. The novel-query interval covers zero. This gives the relative preference shift a narrower interpretation than unrestricted next-token prediction.
+I measured a mean paired gap of **13.71 [12.93, 14.50] nats** and a clean target loss saving of **6.74 [6.31, 7.17] nats**. The novel-query margin interval covers zero.
+
+### Why the two accuracies differ
+
+With two choices I ask whether the target outranks one frequency- and position-controlled foil. For top-1 I ask whether the model’s argmax over all 50,257 tokens equals the target. Of the 189 clean prompts where the target beat the foil, 99 also had it at top-1. On the remaining 90, a different token took first place. This distinction matters when interpreting recovery of the two-choice margin.
 
 ![Clean versus swap margin for every held-out pair](../results/figures/paired-baseline.png)
 
@@ -60,17 +66,17 @@ On discovery prompts, L5H5 scored 0.748 and L6H9 scored 0.700 in attention-proba
 | All 12 query heads in layer 5 | 1.94 [1.74, 2.17] | — |
 | All 12 query heads in layer 6 | 0.95 [0.75, 1.13] | — |
 
-I compared effects within each prompt. The joint ablation exceeded the same-layer pair by 2.17 [1.87, 2.48] nats and the global pair by 2.09 [1.79, 2.41]. The corresponding patch advantages were 5.68 [5.20, 6.17] and 5.45 [4.97, 5.93]. The prespecified joint predictions passed. On neutral prompts, joint zeroing moved the margin by −0.047 [−0.119, 0.031] nats (intact minus ablated). This neutral comparison measures a signed target preference; unrelated changes can cancel in that average.
+I compared effects within each prompt. The joint ablation exceeded the same-layer pair by 2.17 [1.87, 2.48] nats and the global pair by 2.09 [1.79, 2.41]. The corresponding patch advantages were 5.68 [5.20, 6.17] and 5.45 [4.97, 5.93]. The prespecified joint predictions passed. On neutral prompts, joint zeroing moved the margin by −0.047 [−0.119, 0.031] nats (intact minus ablated). This neutral comparison measures a signed target preference. Unrelated changes can cancel in that average.
 
 ![Intervention effects and paired percentile intervals](../results/figures/causal-effects.png)
 
-**Smallest supported route.** L6H9 passed both individual control comparisons under each intervention. Removing its bound successor's weighted value reduced the gap by 1.23 [1.06, 1.42] nats. Removing the other answer's term yielded −0.010 [−0.018, −0.002]. The paired specificity contrast was 1.24 [1.07, 1.43]. My minimal tested account is that the earlier successor supplies value information to L6H9 at the final query, and the downstream model uses that write to favor the bound answer. The experiment leaves open which upstream components enable cue matching.
+**Source contribution through L6H9.** Its individual effects exceeded both assigned control effects under each intervention. Removing its bound successor's weighted value reduced the gap by 1.23 [1.06, 1.42] nats. Removing the other answer's term yielded −0.010 [−0.018, −0.002]. The paired specificity contrast was 1.24 [1.07, 1.43]. The edit localizes part of the effect to the weighted value at the earlier successor position. Its value vector already contains contextual information from preceding layers. The experiment leaves open which upstream components enable cue matching.
 
 **Contribution of L5H5.** Its bound-minus-other source contrast was 0.33 [0.23, 0.44] nats. Its patch exceeded both assigned control patches. Its individual ablation advantage over global control L10H2 was 0.06 [−0.06, 0.18], leaving that comparison unresolved. The same-layer controls' bound-minus-other contrasts were 0.020 for L5H10 and 0.007 for L6H11. A source term can have a larger effect than removing the whole head because the latter removes every source term.
 
 **Joint effects.** The pair exceeded the sum of the individual effects by 1.02 [0.88, 1.17] nats under ablation and 1.06 [0.82, 1.30] under patching. These observations establish nonadditivity on the margin scale. Downstream nonlinearities could produce it. A directed L5H5-to-L6H9 connection remains hypothetical.
 
-The pair removed 15.5% of the mean intact gap under zeroing and restored 41.6% under transplantation. These are ratios of means for different interventions. Although the patch increased the swap margin on all 192 pairs, the mean patched margin was still −1.13 nats, and only 76/192 patched margins favored the clean target.
+I divided the mean patch gain (5.7062 nats) by the mean intact clean-minus-swap gap (13.7111 nats). The pair restored 41.6% [39.0%, 44.2%] of that gap. For ablation, the numerator is the gap lost when I zero the same heads in both contexts (2.1195 nats), giving 15.5% [13.4%, 17.6%]. I recomputed each ratio of means within each paired bootstrap draw. The denominators match, but the interventions and reference states differ. The two percentages cannot be added or interpreted as shares of a circuit. Although the patch increased the swap margin on all 192 pairs, the mean patched margin was still −1.13 nats, and only 76/192 patched margins favored the clean target.
 
 ## Robustness checks
 
@@ -88,11 +94,11 @@ I also inspected failures. On seed 47, trial 55, the clean model preferred the f
 
 I tested a single checkpoint, one prefix length, one vocabulary range and one synthetic distribution with unique prefix tokens. The swap changes the contextual representations of surrounding tokens as well as the cue-successor binding. The controlled endpoint measures their combined downstream effect. A novel query changes the query identity, which limits interpretations of the neutral comparison.
 
-I used one fixed discovery sample and one random draw of comparison heads. My intervals quantify held-out prompt variation conditional on those choices. They are pointwise and exclude model, discovery and control-selection uncertainty. Zeroing and cross-context patching can create unusual internal states. I intervened at the final query only. The 11.59-nat mean gap after joint ablation leaves substantial behavior to explain. The FP32 comparison covers eight pairs.
+I used one fixed discovery sample and one random draw of comparison heads. My intervals quantify held-out prompt variation conditional on those choices. They are pointwise and exclude model, discovery and control-selection uncertainty. Each prompt contributes one row with all conditions attached. The three seeds generate fresh draws from one shared template. They do not provide three independent tasks. The percentile bootstrap can also be overconfident for rare events, particularly when all 192 observations have the same outcome. Zeroing and cross-context patching can create unusual internal states. I intervened at the final query only. The 11.59-nat mean gap after joint ablation leaves substantial behavior to explain. The FP32 comparison covers eight pairs.
 
 ## Conclusions
 
-I found a causal contribution to in-context copying from GPT-2 Small's L6H9 on this task. Its effect survived head controls, and the particular value arriving from the bound successor mattered. L5H5 carried additional patchable information, and joint interventions produced larger effects than the sum of the individual ones. I have identified part of the computation. The upstream cue-matching mechanism, the remaining routes and the extent of transfer to natural text are open questions.
+I measured a partial causal contribution to in-context copying from GPT-2 Small's previously characterized L6H9 on this task. Its effect survived head controls, and the particular value arriving from the bound successor mattered. L5H5 carried additional patchable information, and joint interventions produced larger effects than the sum of the individual ones. The evidence supports a contribution at these tested sites within this task. The upstream cue-matching mechanism, the remaining routes and the extent of transfer to natural text are open questions.
 
 ## Future work
 

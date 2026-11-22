@@ -24,7 +24,7 @@ For fixed clean target $t$ and foil $f$, define $p(k)=\exp(\ell_k)/\sum_v\exp(\e
 
 $$M=\log p(t)-\log p(f)=\ell_t-\ell_f.$$
 
-The clean context $C$ binds the final cue to $t$. The swap $S$ binds it to $f$. Both answers have identical positions and counts across these two contexts. The neutral query is novel. The paired behavioral gap $D=M(C)-M(S)$ measures the shift in relative preference. The target loss saving $L(S)-L(C)$ equals $\log p_C(t)-\log p_S(t)$. Pairwise accuracy counts $M>0$ as one and ties as one half. Top-1 compares the target to the entire vocabulary. All swap metrics keep the clean labels. The neutral comparator and the fixed IDs are implemented in [task.py](../circuitscope/task.py).
+The clean context $C$ binds the final cue to $t$. The swap $S$ binds it to $f$. Each answer keeps its own position and count across the two contexts. The neutral query is novel. The paired behavioral gap $D=M(C)-M(S)$ measures the shift in relative preference. The target loss saving $L(S)-L(C)$ equals $\log p_C(t)-\log p_S(t)$. Pairwise accuracy counts $M>0$ as one and ties as one half. Top-1 compares the target to the entire vocabulary. All swap metrics keep the clean labels. The neutral comparator and the fixed IDs are implemented in [task.py](../circuitscope/task.py).
 
 For discovery, $j_t$ is the earlier target position. Rank heads by the paired attention score
 
@@ -34,7 +34,7 @@ This is a single-query induction score. An attention head that tracks a fixed po
 
 ## Interventions
 
-For set $H$, zeroing replaces $z_q^h$ with the zero vector for each $h\in H$. Other positions and the shared output bias stay intact. Denote the new margin by $M_{0H}$. To measure dependence on this site, use
+For set $H$, zeroing replaces $z_q^h$ with the zero vector for each $h\in H$. The edit preserves the other coordinates at the intervention site and the shared output bias. Downstream query activations can change. Denote the new margin by $M_{0H}$. To measure dependence on this site, use
 
 $$A_H=D-[M_{0H}(C)-M_{0H}(S)].$$
 
@@ -50,6 +50,6 @@ The supplementary source intervention removes a single summand from the attentio
 
 ## Inference
 
-For $S$ equally weighted seeds with $n_s$ trials, $\hat\mu=S^{-1}\sum_s n_s^{-1}\sum_i e_{si}$. Draw $n_s$ trial indices with replacement within each seed, reuse the same indices for all paired quantities, and take the 2.5th and 97.5th percentiles of the resulting mean estimates. This estimates prompt-sampling uncertainty for a fixed checkpoint and discovery selection. [analysis.py](../circuitscope/analysis.py)
+For $S$ equally weighted seeds with $n_s$ trials, $\hat\mu=S^{-1}\sum_s n_s^{-1}\sum_i e_{si}$. Draw $n_s$ trial indices with replacement within each seed, reuse the same indices for all paired quantities, and take the 2.5th and 97.5th percentiles of the resulting mean estimates. For the restoration fraction, each replicate supplies a numerator and denominator from the same sampled rows: $R^{(b)}=\bar P_H^{(b)}/\bar D^{(b)}$. Take percentiles of those ratios. Dividing marginal interval endpoints would discard their covariance. The analogous ablation fraction uses $\bar A_H^{(b)}$ in the numerator. This estimates prompt-sampling uncertainty for a fixed checkpoint and discovery selection. [analysis.py](../circuitscope/analysis.py)
 
 Attention alignment alone cannot establish that changing a site changes the prediction. Ablation tests whether a site's ordinary output contributes under a specified replacement. Patching tests whether differences carried at the site can shift the prediction in a particular recipient context. Both manipulate the computation directly. Neither identifies all upstream sources of the information, and both can create internal states outside the model's usual distribution.
