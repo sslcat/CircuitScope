@@ -48,16 +48,14 @@ For CPU execution I use `--device cpu --precision float32`. The CPU tests check 
 - I included all prompt-level effects, head choices, summary intervals, runtime metadata and figures. [Measured results](results/)
 - I pinned the model revision and verify its weights and config by SHA-256. [GPT-2 Small model card](https://huggingface.co/openai-community/gpt2)
 
-## Attribution and assistance
+## Licensing
 
 I based the task on the repeated-cue induction behavior studied by Olsson and colleagues. I used OpenAI's public GPT-2 Small checkpoint, the Hugging Face implementation and PyTorch hooks. CircuitScope's code and documentation use the MIT license. The original checkpoint is available separately under its upstream license. [Induction heads paper](https://transformer-circuits.pub/2022/in-context-learning-and-induction-heads/index.html) · [GPT-2 upstream license](https://github.com/openai/gpt-2/blob/master/LICENSE) · [CircuitScope license](LICENSE)
 
-I used OpenAI Codex to design and implement the experiments, execute the local runs, check the outputs and draft the documentation. The numerical claims can be checked against the committed trial table.
+The numerical claims can be checked against the committed trial table.
 
-### Let's Connect
+## Let's Connect
 
-I worked on CircuitScope because I wanted to understand more about what happens inside transformer models, especially how attention heads contribute to predictions.
+I’d welcome a conversation about what an attention head actually contributes inside a transformer. I can walk through the attention equations, why I chose a controlled cue swap, and how I used PyTorch hooks to test induction heads with activation patching and ablation. I’m especially happy to discuss how I developed the study, what the interventions support, and what I learned from the effect they left unexplained.
 
-If you're interested in the experiments, activation patching, or the causal analysis, I'm happy to walk through the methodology, explain the results, and discuss the limitations.
-
-Feel free to [reach out](https://github.com/sslcat)!
+If you work on mechanistic interpretability or are exploring it, [say hello on GitHub](https://github.com/sslcat).
